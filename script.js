@@ -19,6 +19,32 @@ class Calculadora {
     this.clear();
   }
 
+  formatarNumeroNaTela(numero) {
+    const stringNumero = numero.toString();
+
+    const digitosInteiro = parseFloat(stringNumero.split('.')[0]);
+    const digitosDecimal = stringNumero.split('.')[1];
+
+    let inteiroTela;
+
+    if(isNaN(digitosInteiro)) {
+      inteiroTela = '';
+    }else {
+      inteiroTela = digitosInteiro.toLocaleString("en", {
+        maximumFractionDigits:0,});
+    }
+
+    if (digitosDecimal != null) {
+      return `${inteiroTela}.${digitosDecimal}`
+    }else {
+      return inteiroTela;
+    }
+  }
+
+  deletar() {
+    this.operadorAtual = this.operadorAtual.toString().slice(0, -1); //deletar o ultimo caracter escrito
+  }
+
   calcular() {
     let resultado;
 
@@ -50,6 +76,9 @@ class Calculadora {
   }
 
   escolhendoOperador(operador) {
+
+    if (this.operadorAtual === '') return;
+
     if (this.operadorAnterior !== "") {
       this.calcular();
     }
@@ -72,10 +101,9 @@ class Calculadora {
   }
 
   //atualizar sempre o q irá aparecer na tela
-  updateDisplay() {
-    this.elementoDeTextoDoOperadorAnterior.innerText = `${this.operadorAnterior} ${this.operador || ""}`;
-    this.elementoDeTextoDoOperadorAtual.innerText =
-      this.operadorAtual;
+  atualizarTela() {
+    this.elementoDeTextoDoOperadorAnterior.innerText = `${this.formatarNumeroNaTela(this.operadorAnterior)} ${this.operador || ""}`;
+    this.elementoDeTextoDoOperadorAtual.innerText = this.formatarNumeroNaTela(this.operadorAtual);
   }
 }
 
@@ -87,28 +115,33 @@ const calculadora = new Calculadora(
 for (const botaoNumero of botaoNumeros) {
   botaoNumero.addEventListener("click", () => {
     calculadora.acrescentarNumero(botaoNumero.innerText); //esta pegando o numero digitado atraves do innerText e levando para o acrescentarNumero
-    calculadora.updateDisplay();
+    calculadora.atualizarTela();
   });
 }
 
 for (const botaoOperacao of botoesOperacao) {
   botaoOperacao.addEventListener("click", () => {
     calculadora.escolhendoOperador(botaoOperacao.innerText); //esta pegando os operadores e mostrando na tela
-    calculadora.updateDisplay();
+    calculadora.atualizarTela();
   });
 }
 
 botaoLimpa.addEventListener("click", () => {
   calculadora.clear();
-  calculadora.updateDisplay();
+  calculadora.atualizarTela();
 });
 
 botaoZerar.addEventListener("click", () => {
   calculadora.operadorAtual = "";
-  calculadora.updateDisplay();
+  calculadora.atualizarTela();
 });
 
 botaoCalcula.addEventListener("click", ()=> {
   calculadora.calcular();
-  calculadora.updateDisplay();
+  calculadora.atualizarTela();
+});
+
+botaoDelete.addEventListener("click", () => {
+  calculadora.deletar();
+  calculadora.atualizarTela();
 })
